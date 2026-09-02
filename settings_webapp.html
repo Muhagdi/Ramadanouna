@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>الإعدادات</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@500;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0F2A2E;
+    --night-deep: #0A1F22;
+    --panel: #163B3E;
+    --panel-raised: #1D4E4F;
+    --gold: #C9A24B;
+    --gold-soft: #D9BC7A;
+    --teal-accent: #3A7D7C;
+    --parchment: #F7F3E8;
+    --parchment-dim: #C9CFC9;
+    --danger: #C1604A;
+    --success: #4E8B6B;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: var(--night);
+    color: var(--parchment);
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(201,162,75,0.08), transparent 60%),
+      repeating-linear-gradient(45deg, rgba(201,162,75,0.025) 0px, rgba(201,162,75,0.025) 1px, transparent 1px, transparent 22px),
+      repeating-linear-gradient(-45deg, rgba(201,162,75,0.025) 0px, rgba(201,162,75,0.025) 1px, transparent 1px, transparent 22px);
+    padding: 18px 16px 100px;
+  }
+
+  .header {
+    text-align: center;
+    padding: 22px 8px 18px;
+  }
+
+  .header .glyph {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 12px;
+    opacity: 0.9;
+  }
+
+  .header h1 {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 0 0 6px;
+    color: var(--parchment);
+  }
+
+  .header p {
+    font-size: 13.5px;
+    color: var(--parchment-dim);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .scope-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(201,162,75,0.12);
+    border: 1px solid rgba(201,162,75,0.35);
+    color: var(--gold-soft);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--night-deep);
+    padding: 5px;
+    border-radius: var(--radius-md);
+    margin: 18px 0 20px;
+    border: 1px solid rgba(201,162,75,0.15);
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 11px 8px;
+    border-radius: calc(var(--radius-md) - 5px);
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--parchment-dim);
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+    user-select: none;
+  }
+
+  .tab.active {
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color: var(--night-deep);
+    font-weight: 700;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.35s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(201,162,75,0.14);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold-soft);
+    margin: 0 0 4px;
+  }
+
+  .card-sub {
+    font-size: 12.5px;
+    color: var(--parchment-dim);
+    margin: 0 0 14px;
+    line-height: 1.6;
+  }
+
+  /* Notification rows */
+  .notif-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 4px;
+    border-bottom: 1px solid rgba(247,243,232,0.06);
+  }
+  .notif-row:last-child { border-bottom: none; }
+
+  .notif-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .notif-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(201,162,75,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .notif-text .t1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--parchment);
+  }
+  .notif-text .t2 {
+    font-size: 11.5px;
+    color: var(--parchment-dim);
+    margin-top: 1px;
+  }
+
+  /* Switch */
+  .switch {
+    position: relative;
+    width: 46px;
+    height: 27px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .switch input { display: none; }
+  .switch-track {
+    position: absolute;
+    inset: 0;
+    background: rgba(247,243,232,0.14);
+    border-radius: 999px;
+    transition: background 0.25s ease;
+  }
+  .switch-thumb {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background: var(--parchment);
+    transition: transform 0.25s ease, background 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .switch input:checked + .switch-track { background: var(--success); }
+  .switch input:checked + .switch-track + .switch-thumb { transform: translateX(-19px); background: #fff; }
+
+  /* Location section */
+  .loc-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(78,139,107,0.12);
+    border: 1px solid rgba(78,139,107,0.3);
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+  .loc-status.empty {
+    background: rgba(247,243,232,0.05);
+    border-color: rgba(247,243,232,0.12);
+    color: var(--parchment-dim);
+  }
+  .loc-status .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+    flex-shrink: 0;
+  }
+  .loc-status.empty .dot { background: var(--parchment-dim); }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-gold {
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color: var(--night-deep);
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(201,162,75,0.4);
+    color: var(--gold-soft);
+    margin-top: 10px;
+  }
+  .btn-danger-outline {
+    background: transparent;
+    border: 1px solid rgba(193,96,74,0.5);
+    color: #E39683;
+    margin-top: 10px;
+  }
+
+  .divider-text {
+    text-align: center;
+    font-size: 12px;
+    color: var(--parchment-dim);
+    margin: 16px 0;
+    position: relative;
+  }
+  .divider-text::before, .divider-text::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 38%;
+    height: 1px;
+    background: rgba(247,243,232,0.12);
+  }
+  .divider-text::before { right: 0; }
+  .divider-text::after { left: 0; }
+
+  /* Governorate grid */
+  .gov-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+  .gov-grid.open { max-height: 800px; margin-top: 12px; }
+
+  .gov-chip {
+    padding: 11px 8px;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    background: rgba(247,243,232,0.05);
+    border: 1px solid rgba(247,243,232,0.1);
+    font-size: 13px;
+    color: var(--parchment);
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .gov-chip.selected {
+    background: rgba(201,162,75,0.18);
+    border-color: var(--gold);
+    color: var(--gold-soft);
+    font-weight: 700;
+  }
+
+  /* Footer save bar */
+  .footer-bar {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(0deg, var(--night) 55%, transparent);
+  }
+
+  .toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--panel-raised);
+    border: 1px solid rgba(201,162,75,0.3);
+    color: var(--parchment);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg class="glyph" viewBox="0 0 48 48" fill="none">
+    <path d="M24 4 L28 14 L38 14 L30 20 L33 30 L24 24 L15 30 L18 20 L10 14 L20 14 Z" fill="#C9A24B" opacity="0.85"/>
+  </svg>
+  <h1>الإعدادات</h1>
+  <p id="headerSub">حدد موقعك وتحكم في إشعارات البوت</p>
+  <span class="scope-badge" id="scopeBadge" style="display:none;"></span>
+</div>
+
+<div id="appRoot">
+
+  <div class="tabs">
+    <div class="tab active" data-tab="notif">🔔 الإشعارات</div>
+    <div class="tab" data-tab="loc">📍 الموقع</div>
+  </div>
+
+  <!-- ===================== NOTIFICATIONS PANEL ===================== -->
+  <div class="panel active" id="panel-notif">
+    <div class="card">
+      <p class="card-title">إشعارات البوت</p>
+      <p class="card-sub">اختار الإشعارات اللي عايز تستقبلها</p>
+
+      <div class="notif-row">
+        <div class="notif-label">
+          <div class="notif-icon">🕌</div>
+          <div class="notif-text">
+            <div class="t1">أوقات الصلاة</div>
+            <div class="t2">إشعار يومي بكل مواعيد الصلاة</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="sw-prayer_times_daily">
+          <span class="switch-track"></span>
+          <span class="switch-thumb"></span>
+        </label>
+      </div>
+
+      <div class="notif-row">
+        <div class="notif-label">
+          <div class="notif-icon">⏳</div>
+          <div class="notif-text">
+            <div class="t1">الصلاة القادمة</div>
+            <div class="t2">تنبيه قبل كل صلاة بوقتها</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="sw-prayer_next">
+          <span class="switch-track"></span>
+          <span class="switch-thumb"></span>
+        </label>
+      </div>
+
+      <div class="notif-row" id="row-wird" style="display:none;">
+        <div class="notif-label">
+          <div class="notif-icon">📖</div>
+          <div class="notif-text">
+            <div class="t1">الوِرد اليومي</div>
+            <div class="t2">4 صفحات قرآن مع كل صلاة</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="sw-wird_daily">
+          <span class="switch-track"></span>
+          <span class="switch-thumb"></span>
+        </label>
+      </div>
+
+      <div class="notif-row">
+        <div class="notif-label">
+          <div class="notif-icon">🌤️</div>
+          <div class="notif-text">
+            <div class="t1">الأذكار</div>
+            <div class="t2">أذكار الصباح والمساء</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="sw-azkar_daily">
+          <span class="switch-track"></span>
+          <span class="switch-thumb"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== LOCATION PANEL ===================== -->
+  <div class="panel" id="panel-loc">
+    <div class="card">
+      <p class="card-title">موقعك الحالي</p>
+      <div class="loc-status empty" id="locStatus">
+        <span class="dot"></span>
+        <span id="locStatusText">لسه محددتش موقعك</span>
+      </div>
+
+      <button class="btn btn-gold" id="btnShareGps">
+        📍 مشاركة موقعي الحالي
+      </button>
+
+      <div class="divider-text">أو اختار محافظتك يدوياً</div>
+
+      <button class="btn btn-outline" id="btnToggleGov">
+        🗺️ اختيار من قائمة المحافظات
+      </button>
+
+      <div class="gov-grid" id="govGrid"></div>
+
+      <button class="btn btn-danger-outline" id="btnDeleteLoc" style="display:none;">
+        🗑 حذف الموقع المحفوظ
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-bar">
+  <button class="btn btn-gold" id="btnSave">حفظ الإعدادات</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const params = new URLSearchParams(window.location.search);
+const uid = params.get('uid');
+const scope = params.get('scope') || 'user';
+const chatId = params.get('chat_id');
+const isGroup = scope === 'group';
+
+let initialState = { n: {}, city: null };
+try {
+  const rawState = params.get('state');
+  if (rawState) initialState = JSON.parse(rawState);
+} catch (e) { /* بيانات ابتدائية غير موجودة، هنستخدم الافتراضي */ }
+
+const EGYPT_GOVERNORATES = [
+  "القاهرة","الجيزة","الإسكندرية","القليوبية","الشرقية","الدقهلية",
+  "البحيرة","المنوفية","الغربية","كفر الشيخ","دمياط","بورسعيد",
+  "الإسماعيلية","السويس","شمال سيناء","جنوب سيناء","الفيوم","بني سويف",
+  "المنيا","أسيوط","سوهاج","قنا","الأقصر","أسوان","البحر الأحمر",
+  "الوادي الجديد","مطروح"
+];
+
+let selectedGov = null;
+let notifState = {
+  prayer_times_daily: !!initialState.n?.pt,
+  prayer_next: !!initialState.n?.pn,
+  wird_daily: !!initialState.n?.wd,
+  azkar_daily: !!initialState.n?.az
+};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function initHeader() {
+  if (isGroup) {
+    document.getElementById('headerSub').textContent = 'إعدادات الجروب — موقع وإشعارات';
+    const badge = document.getElementById('scopeBadge');
+    badge.textContent = 'إعدادات الجروب';
+    badge.style.display = 'inline-block';
+  }
+  document.getElementById('row-wird').style.display = initialState.ramadan ? '' : 'none';
+}
+
+function initTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+function initSwitches() {
+  Object.keys(notifState).forEach(key => {
+    const el = document.getElementById('sw-' + key);
+    if (!el) return;
+    el.checked = notifState[key];
+    el.addEventListener('change', () => {
+      notifState[key] = el.checked;
+    });
+  });
+}
+
+function renderGovGrid() {
+  const grid = document.getElementById('govGrid');
+  grid.innerHTML = '';
+  EGYPT_GOVERNORATES.forEach(name => {
+    const chip = document.createElement('div');
+    chip.className = 'gov-chip';
+    chip.textContent = name;
+    chip.addEventListener('click', () => {
+      selectedGov = name;
+      document.querySelectorAll('.gov-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      showToast(`تم اختيار ${name} ✓`);
+    });
+    grid.appendChild(chip);
+  });
+}
+
+function renderLocStatus() {
+  const statusBox = document.getElementById('locStatus');
+  const statusText = document.getElementById('locStatusText');
+  const deleteBtn = document.getElementById('btnDeleteLoc');
+  if (initialState.city) {
+    statusBox.classList.remove('empty');
+    statusText.textContent = `موقعك الحالي: ${initialState.city}`;
+    deleteBtn.style.display = 'flex';
+  } else {
+    statusBox.classList.add('empty');
+    statusText.textContent = 'لسه محددتش موقعك';
+    deleteBtn.style.display = 'none';
+  }
+}
+
+function initLocationPanel() {
+  renderGovGrid();
+  renderLocStatus();
+
+  document.getElementById('btnToggleGov').addEventListener('click', () => {
+    document.getElementById('govGrid').classList.toggle('open');
+  });
+
+  document.getElementById('btnShareGps').addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      showToast('المتصفح ده مش بيدعم تحديد الموقع');
+      return;
+    }
+    showToast('بنحدد موقعك...');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        sendData({
+          type: 'location_gps',
+          scope: scope,
+          chat_id: chatId,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        });
+      },
+      () => showToast('محتاجين إذن الوصول للموقع'),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  document.getElementById('btnDeleteLoc').addEventListener('click', () => {
+    sendData({ type: 'location_delete', scope: scope, chat_id: chatId });
+  });
+}
+
+function sendData(payload) {
+  payload.uid = uid;
+  if (tg && tg.sendData) {
+    tg.sendData(JSON.stringify(payload));
+  } else {
+    console.log('sendData (no Telegram context):', payload);
+    showToast('التطبيق ده لازم يفتح جوه تليجرام');
+  }
+}
+
+function initSave() {
+  document.getElementById('btnSave').addEventListener('click', () => {
+    const payload = {
+      type: 'save_settings',
+      scope: scope,
+      chat_id: chatId,
+      settings: notifState
+    };
+    if (selectedGov) {
+      payload.governorate = selectedGov;
+    }
+    sendData(payload);
+  });
+}
+
+// ===== Init =====
+initHeader();
+initTabs();
+initSwitches();
+initLocationPanel();
+initSave();
+</script>
+</body>
+</html>
