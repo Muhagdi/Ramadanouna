@@ -328,6 +328,7 @@
     transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
   }
   .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.55; pointer-events: none; }
 
   .btn-gold {
     background: linear-gradient(180deg, var(--gold-soft), var(--gold));
@@ -631,6 +632,7 @@ const params = new URLSearchParams(window.location.search);
 const uid = params.get('uid');
 const scope = params.get('scope') || 'user';
 const chatId = params.get('chat_id');
+const apiUrl = params.get('api');
 const isGroup = scope === 'group';
 
 let initialState = { n: {}, city: null };
@@ -799,13 +801,58 @@ function initLocationPanel() {
   });
 }
 
-function sendData(payload) {
+function setButtonsDisabled(disabled) {
+  const saveBtn = document.getElementById('btnSave');
+  const gpsBtn = document.getElementById('btnShareGps');
+  const delBtn = document.getElementById('btnDeleteLoc');
+  [saveBtn, gpsBtn, delBtn].forEach(btn => {
+    if (btn) btn.disabled = disabled;
+  });
+}
+
+async function sendData(payload) {
   payload.uid = uid;
-  if (tg && tg.sendData) {
-    tg.sendData(JSON.stringify(payload));
-  } else {
+
+  if (!tg || !tg.initData) {
     console.log('sendData (no Telegram context):', payload);
     showToast('التطبيق ده لازم يفتح جوه تليجرام');
+    return;
+  }
+
+  if (!apiUrl) {
+    console.log('sendData (no api url):', payload);
+    showToast('حصل خطأ في الاتصال بالسيرفر');
+    return;
+  }
+
+  setButtonsDisabled(true);
+  showToast('جاري الحفظ...');
+
+  try {
+    const response = await fetch(`${apiUrl}/api/save-settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        initData: tg.initData,
+        type: payload.type,
+        scope: payload.scope,
+        chat_id: payload.chat_id,
+        settings: payload.settings,
+        governorate: payload.governorate,
+        lat: payload.lat,
+        lng: payload.lng
+      })
+    });
+
+    if (response.ok) {
+      tg.close();
+    } else {
+      showToast('فشل حفظ الإعدادات، حاول تاني');
+      setButtonsDisabled(false);
+    }
+  } catch (e) {
+    showToast('فشل الاتصال بالسيرفر، حاول تاني');
+    setButtonsDisabled(false);
   }
 }
 
