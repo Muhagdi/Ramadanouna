@@ -430,21 +430,32 @@
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
 
   .custom-select-trigger.open {
     border-color: var(--gold);
+    background: rgba(210,159,84,0.08);
   }
 
   .select-arrow {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(155deg, rgba(210,159,84,0.28), rgba(210,159,84,0.1));
+    border: 1px solid rgba(210,159,84,0.4);
     color: var(--gold-soft);
-    font-size: 13px;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
   }
 
   .custom-select-trigger.open .select-arrow {
     transform: rotate(180deg);
+    background: linear-gradient(155deg, var(--gold-soft), var(--gold));
+    color: var(--night-deep);
   }
 
   .custom-select-list {
@@ -668,7 +679,11 @@
       <div class="custom-select" id="govSelectWrap">
         <button type="button" class="custom-select-trigger" id="govSelectTrigger">
           <span id="govSelectLabel">القاهرة</span>
-          <span class="select-arrow">▾</span>
+          <span class="select-arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
         </button>
         <div class="custom-select-list" id="govSelectList"></div>
       </div>
@@ -740,9 +755,15 @@ function markDirty() {
 
 function initHeader() {
   if (isGroup) {
-    document.getElementById('headerSub').textContent = 'إعدادات الجروب — موقع وإشعارات';
+    const kind = initialState.chat_kind === 'channel' ? 'قناة' : 'جروب';
+    const title = initialState.title || null;
+
+    document.getElementById('headerSub').textContent = title
+      ? `إعدادات ${kind} "${title}" — موقع وإشعارات`
+      : `إعدادات ${kind} — موقع وإشعارات`;
+
     const badge = document.getElementById('scopeBadge');
-    badge.textContent = 'إعدادات الجروب';
+    badge.textContent = title ? `${kind} • ${title}` : `إعدادات ${kind}`;
     badge.style.display = 'inline-block';
   }
   const inRamadan = !!initialState.ramadan;
